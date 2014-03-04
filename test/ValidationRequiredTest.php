@@ -19,11 +19,11 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
   // --------------------------------------------------------------------------
 
   /**
-   * ValidationRequiredTest::testAddFieldNoAliasInvalidRule()
+   * ValidationRequiredTest::testAddFieldInvalidRule()
    * 
    * @expectedException PHPUnit_Framework_Error
    */
-  public function testAddFieldNoAliasInvalidRule()
+  public function testAddFieldInvalidRule()
   {
     //run test with a non-recognised rule - should throw error
     $res = $this->v->add_field('field1','','requiredX');
@@ -37,7 +37,7 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
   
   // --------------------------------------------------------------------------
 
-  public function testAddFieldNoAliasRequiredRule()
+  public function testAddFieldRequiredRule()
   {
     unset($this->v);
     $this->v = new Lib\FormValidate();
@@ -50,7 +50,7 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
   
   // --------------------------------------------------------------------------
 
-  public function testRunOneFieldNoAliasRequiredRuleFieldPresentNoData()
+  public function testRunOneFieldRequiredRuleFieldPresentNoData()
   {
 
     $this->v->add_field('field1','','required');
@@ -62,7 +62,7 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
   
   // --------------------------------------------------------------------------
 
-  public function testRunOneFieldNoAliasRequiredRuleFieldPresentNoNonespaceData()
+  public function testRunOneFieldRequiredRuleFieldPresentNoNonespaceData()
   {
 
     $this->v->add_field('field1','','required');
@@ -74,7 +74,7 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
 
   // --------------------------------------------------------------------------
 
-  public function testRunOneFieldNoAliasRequiredRuleFieldPresentWithData()
+  public function testRunOneFieldRequiredRuleFieldPresentWithData()
   {
 
     $this->v->add_field('field1','','required');
@@ -86,12 +86,11 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
 
   // --------------------------------------------------------------------------
 
-  public function testRunTwoFieldNoAliasRequiredRuleFieldPresentWithData()
+  public function testRunOneFieldNonRequiredRuleFieldNotPresent()
   {
-    //2nd field rule with no field in data (this was a bug as 2nd rule shouldn't run- now fixed)
-    $this->v->add_field('field1','','required')
-            ->add_field('field2','','alpha');
-    $res = $this->v->run(array('field1'=>'val1'));
+    //non-required rule with no field in data (this was a bug - now fixed)
+    $this->v->add_field('field1','','alpha');
+    $res = $this->v->run();
 
     $this->assertTrue($res);
 
@@ -99,7 +98,7 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
 
   // --------------------------------------------------------------------------
 
-  public function testRunOneFieldNoAliasRequiredFailError()
+  public function testRunOneFieldRequiredFailError()
   {
 
     $this->v->add_field('field1','','required');
@@ -107,15 +106,15 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
 
     $errors =  $this->v->get_all_errors_array();
 
-    $this->assertTrue(is_array($errors));
+    $this->assertTrue(is_array($errors),'not error array');
     
-    $this->assertTrue(count($errors) == 1);
+    $this->assertTrue(count($errors) == 1,'not single error');
 
     $msg = isset($errors['field1']) ? $errors['field1'] : '';
 
-    $this->assertTrue($msg !== '');
-
-    $this->assertTrue(stripos($msg,'field1') !== false);
+    $this->assertTrue($msg !== '','error empty string','no error message');
+    //chedk for field name and error type
+    $this->assertRegExp('#\bfield1( | .* )required\b#i',$msg,'error message format error');
 
   }
   
