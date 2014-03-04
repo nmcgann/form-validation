@@ -106,15 +106,149 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
 
     $errors =  $this->v->get_all_errors_array();
 
-    $this->assertTrue(is_array($errors),'not error array');
+    $this->assertTrue(is_array($errors),'not is_array error array');
     
-    $this->assertTrue(count($errors) == 1,'not single error');
+    $this->assertTrue(count($errors) == 1,'not single error in array');
 
-    $msg = isset($errors['field1']) ? $errors['field1'] : '';
+    $this->assertArrayHasKey('field1', $errors,'no error for field in array');
+    
+    //check for field name and error type in array string
+    $this->assertRegExp('#\bfield1( | .* )required\b#i',$errors['field1'],'error message format error (array)');
 
-    $this->assertTrue($msg !== '','error empty string','no error message');
-    //chedk for field name and error type
-    $this->assertRegExp('#\bfield1( | .* )required\b#i',$msg,'error message format error');
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name and error type in string
+    $this->assertRegExp('#\bfield1( | .* )required\b#i',$str,'error message format error (string)');
+    
+    //check for delimiters at beginning and end of string
+    $this->assertRegExp('#^<p>.*</p>$#i',$str,'error message format error (string delimiters)');
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function testRunOneFieldWithAliasRequiredFailError()
+  {
+
+    $this->v->add_field('field1','XXXX','required');
+    $res = $this->v->run(array('field1'=>''));
+
+    $errors =  $this->v->get_all_errors_array();
+
+    //check for alias name and error type in array string
+    $this->assertRegExp('#\bXXXX( | .* )required\b#i',$errors['field1'],'error message Alias format error (array)');
+
+  }
+    
+  // --------------------------------------------------------------------------
+
+  public function testSetCustomFieldErrorMessage()
+  {
+
+    $this->v->add_field('field1','','required');
+    
+    $this->v->add_error_message('required','custom message %s custom message');
+    $res = $this->v->run(array('field1'=>''));
+
+    $errors =  $this->v->get_all_errors_array();
+
+    $this->assertRegExp('#^custom message field1 custom message$#',$errors['field1']);
+    
+  }
+
+
+  /**
+   * ValidationRequiredTest::testSetCustomFieldErrorMessageFail1()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testSetCustomFieldErrorMessageFail1()
+  {
+
+    $this->v->add_error_message('','message');
+
+  }
+
+  /**
+   * ValidationRequiredTest::testSetCustomFieldErrorMessageFail2()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testSetCustomFieldErrorMessageFail2()
+  {
+
+    $this->v->add_error_message('required','');
+
+  }
+  
+  /**
+   * ValidationRequiredTest::testSetCustomFieldErrorMessageFail3()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testSetCustomFieldErrorMessageFail3()
+  {
+
+    $this->v->add_error_message('required',1);
+
+  }
+  
+  /**
+   * ValidationRequiredTest::testSetCustomFieldErrorMessageFail4()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testSetCustomFieldErrorMessageFail4()
+  {
+
+    $this->v->add_error_message(1,'message');
+
+  }
+
+  // --------------------------------------------------------------------------
+  
+  /**
+   * ValidationRequiredTest::testSetDataFail1()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testSetDataFail1()
+  {
+
+    $this->v->set_data();
+
+  }
+
+  /**
+   * ValidationRequiredTest::testSetDataFail2()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testSetDataFail2()
+  {
+
+    $this->v->set_data(1);
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function testSetDataSucceed()
+  {
+
+    $o = $this->v->set_data(array('test1'=>'val1'));
+    
+    $this->assertInstanceOf($this->name,$o);
+  }
+
+  public function testGetDataSucceed()
+  {
+    $td = array('test1'=>'val1','test2'=>'val2','test3'=>'val3');
+    $this->v->set_data($td);
+    
+    $res = $this->v->get_all_data();
+     
+    $this->assertTrue(count(array_diff_assoc($td,$res)) === 0,'set_data and get_all_data are different');
 
   }
   
