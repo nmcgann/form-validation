@@ -1,6 +1,7 @@
 <?php
 namespace Test;
 use \Libraries as Lib;
+//Phpunit tests for validation class
 
   // --------------------------------------------------------------------------
   
@@ -151,6 +152,12 @@ class ValidationBasicTest extends \PHPUnit_Framework_TestCase
 
   // --------------------------------------------------------------------------
 
+  public function testRunEmptyDataNoRulesValidationObject()
+  {
+    $this->assertTrue($this->v->run(array()));
+  }
+
+  // --------------------------------------------------------------------------
   public function TearDown() {
    unset($this->v);
   

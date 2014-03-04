@@ -40,7 +40,7 @@ class FormValidate {
   protected $error_msgs = array(
     /* Default Messages mirroring CodeIgniter's for familiarity. Can be over-written if required */
     'required'            => "The %s field is required.",
-    'is_set'              => "The %s field must have a value.", 
+    'is_set'              => "The %s field must be present.", 
     'valid_email'         => "The %s field must contain a valid email address.",
     'valid_url'           => "The %s field must contain a valid URL.",
     'valid_ip'            => "The %s field must contain a valid IP.",
@@ -55,14 +55,14 @@ class FormValidate {
     'is_numeric'          => "The %s field must contain only numeric characters.",
     'integer'             => "The %s field must contain an integer.",
     'matches'             => "The %s field does not match the %s field.",
-/*    'is_unique'         => "The %s field must contain a unique value.",*/ /* requires db access - not appropriate */
+//    'is_unique'         => "The %s field must contain a unique value.", // requires db access - not appropriate
     'is_natural'          => "The %s field must contain only positive numbers.",
     'is_natural_no_zero'  => "The %s field must contain a number greater than zero.",
     'decimal'             => "The %s field must contain a decimal number.",
     'less_than'           => "The %s field must contain a number less than %s.",
     'greater_than'        => "The %s field must contain a number greater than %s.",
     // special message string for an internal message
-    'report_error'        => "No custom error message is set for %s validating %s field." 
+    'report_error'        => "No custom error message is set for \"%s\" validating \"%s\" field." 
   );
 
   //callbacks for external validation functions. These are either in simple function format
@@ -123,8 +123,7 @@ class FormValidate {
       if(empty($this->callbacks[$method]))
       {
         //standard function - no array parameters
-            return call_user_func_array($method, $args);
-        
+        return call_user_func_array($method, $args);
       }
       else
       {
@@ -134,23 +133,20 @@ class FormValidate {
         if($method == $callback[1])
         {
           //calls with the class/method array
-              return call_user_func_array($callback, $args); 
+          return call_user_func_array($callback, $args); 
         }
         //test for anonymous/lambda function method - $callback[0] is the name and $callback[1] is the anon function
         elseif ($method == $callback[0]) //still a redundant check?
         {
           //calls with the lambda case (not an array)
-              return call_user_func_array($callback[1], $args); 
+          return call_user_func_array($callback[1], $args); 
         }
-      
       }
-    
     }
   
-    //if we get to here it is an unrecognised callback which is an error, but not a showstopper
-//TODO: error handling?
-  //trigger_error('Call to non-existing validation method/function: '.$method, E_USER_ERROR);
-    return false; //implicit fail of test routine
+    //if we get to here it is an unrecognised callback which is an error.
+    trigger_error('Call to non-existing validation method/function: '.$method, E_USER_ERROR);
+    //return false; //implicit fail of test routine
   }
 
   /**
@@ -190,39 +186,39 @@ class FormValidate {
    */
   public function add_validation_rule($name = null, $func = null) 
   {
-    if($name === null || !is_string($name) || $name == '') return;
-    
-    //does the name match an existing routine? - if so we don't allow it
-    if(method_exists($this, $name)) return false;
-    
-    if($func === null)
+    //check for parameter errors and illegal names that clash with existing methods
+    if($name !== null && is_string($name) && $name != '' &&
+      !method_exists($this, $name)) 
     {
-      if (is_callable($name))
+    
+      if($func === null)
       {
-        //simple function - looks good & callable
-        $this->callbacks[$name] = array();
-        return true;
+        if (is_callable($name))
+        {
+          //simple function - looks good & callable
+          $this->callbacks[$name] = array();
+          return $this;
+        }
+        
+        //not callable - drop through
       }
-      
-      //not callable - drop through
+      else if (is_callable($func))
+      {
+        //there is a 2nd callable parameter
+        // yes - anonymous function case
+       $this->callbacks[$name] = array($name, $func);
+        return $this;
+      }
+      else if(is_callable(array($func,$name)))
+      {
+        //2nd param is not callable - but a class/name version ($func is the class)
+        $this->callbacks[$name] = array($func,$name);
+        return $this;
+        
+      }
     }
-    else if (is_callable($func))
-    {
-      //there is a 2nd callable parameter
-      // yes - anonymous function case
-     $this->callbacks[$name] = array($name, $func);
-      return true;
-    }
-    else if(is_callable(array($func,$name)))
-    {
-      //2nd param is not callable - but a class/name version ($func is the class)
-      $this->callbacks[$name] = array($func,$name);
-      return true;
-      
-    }
-    
-    //nothing matches
-      return false;
+    //bad name, clash or is not callable
+    trigger_error("Error in rule format for \"$name\" or name clash with existing rule.", E_USER_ERROR);
   }
 
   /**
@@ -237,10 +233,14 @@ class FormValidate {
    */
   public function add_error_message($routine,$msg) 
   {
-    if (!is_string($routine) || !is_string($msg) || $routine == '' || $msg == '') return false;
+    if (!is_string($routine) || !is_string($msg) || $routine == '' || $msg == '')
+    { 
+      trigger_error("Error in parameters for add_error_message.", E_USER_ERROR);
+    }
     
     $this->error_msgs[$routine] = $msg;
-    return true;
+    
+    return $this;
   }
 
   /**
@@ -254,10 +254,14 @@ class FormValidate {
    */
   public function set_error_tags($opening,$closing) 
   {
-    if (!is_string($opening) || !is_string($closing)) return;
-    
+    if (!is_string($opening) || !is_string($closing)) 
+    {
+      trigger_error("Error in parameters for set_error_tags.", E_USER_ERROR);
+    }
     $this->opening_err_tag = $opening;
     $this->closing_err_tag = $closing;
+    
+    return $this;
   }
   
   /**
@@ -270,11 +274,15 @@ class FormValidate {
    */
   public function set_data ($data=null)
   {
-    if($data === null || !is_array($data)) return false;
+    if($data === null || !is_array($data))
+    {
+      trigger_error("Error in parameters for set_data.", E_USER_ERROR);
+       
+    } 
     
     $this->data = $data;
     
-    return true;
+    return $this;
   }
 
   /**
@@ -300,7 +308,8 @@ class FormValidate {
    */
   public function get_data ($field=null,$default=null)
   {
-    if($field === null) return $default;
+    if($field === null) 
+      return $default;
     
     return (isset($this->data[$field]) ? $this->data[$field] : $default);
   }
@@ -330,15 +339,14 @@ class FormValidate {
   {
     if(isset($this->errors[$field]))
     {
-      $msg = $this->errors[$field];
-      return $this->opening_err_tag.$msg.$this->closing_err_tag;
-      
+      $msg = $this->opening_err_tag.$this->errors[$field].$this->closing_err_tag;
     }
     else
     {
-      return '';
+      $msg = '';
     }
-  
+    
+    return $msg;
   }
 
   /**
@@ -365,15 +373,18 @@ class FormValidate {
    */
   public function add_field ($field, $alias='', $rule_list='')
   {
-    if($field == '') return $this; //no field, just return $this so chainable
+    //sanity check    
+    if(!is_string($field) || !is_string($alias) || !is_string($rule_list))
+    {
+      //parameter errors, just return
+      trigger_error("Error in parameters for add_field", E_USER_ERROR);
+    }
     
-    if(!is_string($alias) || !is_string($rule_list)) return $this; //parameter errors, just return
+    if($field == '') return $this; //no field, just return $this so chainable
     
     //build the new rule. rule_array is an array of rules and their parameters (if any)
     $rule = array('field'=>$field, 'alias' => $alias, 'rule_array' => array());
-    
-    if(!is_string($alias) || !is_string($rule_list)) return $this;
-    
+       
     if($rule_list == '')
     {
       //empty rule list - still ok to add in as an empty rule (gets a possible field alias in there)
@@ -422,16 +433,15 @@ class FormValidate {
         }
         else
         {
-          //nothing here
-//TODO: error handling for bad rules - could be flagged
-          //trigger_error('Error in rule format: '.$element, E_USER_ERROR);
+          //nothing found here - bad rule
+          trigger_error("Error in rule format for $element", E_USER_ERROR);
         }
         // we can't check if these rules are callable yet as custom validation
         //routines may get added after the rules. Check when we try and run them.
-        
       }
       
       //if a valid rule string add the whole ruleset to the array, else discard it.
+      //(redundant test when trigger_error() used)
       if($found) 
       {
         $this->rules[] = $rule;
@@ -451,19 +461,23 @@ class FormValidate {
    */
   public function add_field_list ($field_list=array())
   {
-    if(!is_array($field_list) || empty($field_list))
+    if(!is_array($field_list))
     {
-      return;
+      trigger_error("Error in data format for add_field_list", E_USER_ERROR);
     }
     
     foreach(new \ArrayIterator($field_list) as $field)
     {
-      if(!is_array($field) || !isset($field['field'],$field['alias'],$field['rule_list'])) 
-        continue;//skip duff
+      if(!is_array($field) || !isset($field['field'],$field['alias'],$field['rule_list']))
+      {
+        trigger_error("Error in data format for add_field_list", E_USER_ERROR);
+      }
       
       $this->add_field ($field['field'], $field['alias'], $field['rule_list']);
     
     }
+    
+    return $this;
   }
 
   /**
@@ -494,13 +508,13 @@ class FormValidate {
    */
   private function validate_one($method, &$data, &$param)
   {
-    if($data === null || $method == 'required')
+    if(/*$data === null ||*/ $method == 'required' || $method == 'is_set')
     {
       //needs to run if no data (or forced by required rule)to generate the error for empty field
       $result = $this->{$method}($data,$param);
       
     }
-    else if($data === '') 
+    else if($data === null || $data === '') //added null here
     {
       //empty field - always true (unless "required")
       $result = true;
@@ -520,15 +534,20 @@ class FormValidate {
    * 
    * main run validate function
    * 
+   * @param array $val_data
    * @param bool $only_with_rules
    * @return
    */
-  public function run ($only_with_rules=false)
+  public function run ($val_data = null, $only_with_rules=false)
   {
     //run the validate & return false if any fails, or true if ok
     $passed = true;
     //clear any errors from previous runs
     $this->errors = array();
+    
+    //if data to validate passed then copy in
+    if($val_data !== null && is_array($val_data))
+      $this->data = $val_data;
     
     if($only_with_rules) $this->restrict_data_fields (); //remove fields without rules if enabled
     
@@ -594,17 +613,16 @@ class FormValidate {
         }
         else
         {
-          //not a callable function
-//TODO: this is an internal error - how to handle the best way?
-            //trigger_error('validation function not callable: '.$term[0], E_USER_ERROR);
-            $passed = false; //just fail it for now
+          //not a callable function - internal error
+            trigger_error("Validation function {$term[0]} not callable.", E_USER_ERROR);
+          //throw new \ErrorException("Validation function {$term[0]} not callable.");
           break;
         }
       }
     
     }
     
-    //did anything fail??
+    //did anything fail validation??
     return $passed;
 
   }
@@ -648,9 +666,9 @@ class FormValidate {
       }
       else
       {
-        //when there isn't an error message-message
+        //when there isn't an error message-message it is a fatal error
         trigger_error("No default missing field error message when custom message not supplied.", E_USER_ERROR);
-      }
+       }
     
     }
   }
@@ -659,7 +677,7 @@ class FormValidate {
 /**
  * Validation and data prep routines
  * 
- * There are lots of these
+ * There are lots of these!
  * 
  * 
  */
@@ -947,12 +965,8 @@ class FormValidate {
       return false;
     }
 
-    if ($str == 0)
-    {
-      return false;
-    }
-
-    return true;
+    return ($str != 0);
+    
   }
 
 // ----------------------------------------------------------------------------
