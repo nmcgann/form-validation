@@ -197,13 +197,60 @@ class ValidationAddRule extends \PHPUnit_Framework_TestCase
 
     $msg =  $this->v->get_error_message('field1');
 
-    $this->assertRegExp('#\bNo custom error message( | .* )field1\b#',$msg,'error message not generic format');
-
+    $this->assertRegExp('#No custom error message is set for "custom_test" validating "field1" field.#',$msg,'error message not generic format');
 
   }
  
+  // --------------------------------------------------------------------------
  
-  
+  public function testAddRuleSimpleClosureAndCallWithMessage()
+  {
+    
+    $o = $this->v->add_validation_rule('custom_test',function($obj,$str){
+    
+       $obj->add_error_message('custom_test','The %s field must contain a_valid_value.');
+       
+      return $str === 'a_valid_value';
+    });
+
+    $this->v->add_field('field1','FIELD NUMBER 1','custom_test'); //with alias
+    
+    $res = $this->v->run(array('field1'=>'value1'));
+    
+    $this->assertFalse($res,'validation passed, should have failed');
+ 
+    $msg = $this->v->get_error_message('field1');
+
+    $this->assertRegExp('#The FIELD NUMBER 1 field must contain a_valid_value.#',$msg,'error message not correct custom format');
+ 
+   }
+  // --------------------------------------------------------------------------
+ 
+  public function testAddRuleSimpleFunctionAndCall()
+  {
+    
+    $o = $this->v->add_validation_rule('Test\custom_test_fn');
+ 
+    $this->v->add_field('field1','','custom_test_fn');
+    
+    $res = $this->v->run(array('field1'=>'value1'));
+    
+    $this->assertFalse($res,'validation passed, should have failed');
+ 
+    $res = $this->v->run(array('field1'=>'a_valid_value'));
+
+    $this->assertTrue($res,'validation failed, should have passed');
+   
+    $res = $this->v->run(array('field1'=>'value1')); //fail
+    
+    $this->assertFalse($res,'validation passed, should have failed');
+
+    $msg =  $this->v->get_error_message('field1');
+
+    $this->assertRegExp('#No custom error message is set for "custom_test_fn" validating "field1" field.#',$msg,'error message not generic format');
+
+  }
+    
   // --------------------------------------------------------------------------
   
   public function TearDown() 

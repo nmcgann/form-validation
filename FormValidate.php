@@ -658,11 +658,11 @@ class FormValidate {
     else
     {
       //default message if nothing specific can be found - check message present
-//      $this->errors[$field_name] = 'No error message is set for '.$routine_name.' validating '.$field_name.' field.';
+      //$this->errors[$field_name] = 'No error message is set for '.$routine_name.' validating '.$field_name.' field.';
       if(isset($this->error_msgs['report_error']) && $this->error_msgs['report_error'] != '')
       {
-        //do recursive call to handle "no custom error message" message
-        $this->report_error('report_error',$routine_name,'',$field_name);
+        //handle "no custom error message" message
+        $this->errors[$field_name] = sprintf($this->error_msgs['report_error'],$routine_name, ($alias == '') ? $field_name : $alias);
       }
       else
       {
