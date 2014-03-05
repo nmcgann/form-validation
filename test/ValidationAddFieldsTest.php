@@ -118,7 +118,107 @@ class ValidationAddFieldsTest extends \PHPUnit_Framework_TestCase
 
   }
   
+  // --------------------------------------------------------------------------
+
+  /**
+   * ValidationAddFieldsTest::testAddFieldListWithError()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testAddFieldListWithError()
+  {
+
+    $this->v->add_field_list('a string');
+
+
+  }
+    
+  // --------------------------------------------------------------------------
   
+  public function testAddFieldListWithNoErrorInArray()
+  {
+
+    $data = array();
+    
+    $o = $this->v->add_field_list($data);
+
+    $this->assertInstanceOf($this->name,$o);
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  /**
+   * ValidationAddFieldsTest::testAddFieldListWithErrorInArray1()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testAddFieldListWithErrorInArray1()
+  {
+
+    $data = array(array('field'=>'test1','alias'=>''/*,'rule_list'=>''*/));
+    
+    $o = $this->v->add_field_list($data);
+
+  }
+
+  /**
+   * ValidationAddFieldsTest::testAddFieldListWithErrorInArray2()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testAddFieldListWithErrorInArray2()
+  {
+
+    $data = array(array('field'=>'test1'/*,'alias'=>''*/,'rule_list'=>''));
+    
+    $o = $this->v->add_field_list($data);
+
+  }
+  
+  /**
+   * ValidationAddFieldsTest::testAddFieldListWithErrorInArray3()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testAddFieldListWithErrorInArray3()
+  {
+
+    $data = array(array(/*'field'=>'test1',*/'alias'=>'','rule_list'=>''));
+    
+    $o = $this->v->add_field_list($data);
+
+  }
+  
+  /**
+   * ValidationAddFieldsTest::testAddFieldListWithErrorInArray4()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testAddFieldListWithErrorInArray4()
+  {
+
+    $data = array(array(1));
+    
+    $o = $this->v->add_field_list($data);
+
+  }
+
+  // --------------------------------------------------------------------------
+  
+  public function testAddFieldListTwoFields()
+  {
+
+    $data = array(array('field'=>'test1','alias'=>'','rule_list'=>''),
+                  array('field'=>'test2','alias'=>'','rule_list'=>'')
+            );
+    
+    $o = $this->v->add_field_list($data);
+    
+    $this->assertInstanceOf($this->name,$o);
+
+  }
+ 
   // --------------------------------------------------------------------------
   
   public function TearDown() 

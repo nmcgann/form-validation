@@ -8,8 +8,10 @@ use \Libraries as Lib;
 class ValidationBasicTest extends \PHPUnit_Framework_TestCase
 {
   public $v;
+  public $name = 'Libraries\FormValidate';
   
-  public function setUp() {
+  public function setUp() 
+  {
    $this->v = new Lib\FormValidate();
   
   }
@@ -19,7 +21,7 @@ class ValidationBasicTest extends \PHPUnit_Framework_TestCase
   public function testCreateValidationObject()
   {
   
-   $this->assertInstanceOf('Libraries\FormValidate',$this->v);
+   $this->assertInstanceOf($this->name,$this->v);
   }
   
   // --------------------------------------------------------------------------
@@ -158,7 +160,8 @@ class ValidationBasicTest extends \PHPUnit_Framework_TestCase
   }
 
   // --------------------------------------------------------------------------
-  public function TearDown() {
+  public function TearDown() 
+  {
    unset($this->v);
   
   }

@@ -150,7 +150,7 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
     $this->v->add_error_message('required','custom message %s custom message');
     $res = $this->v->run(array('field1'=>''));
 
-    $errors =  $this->v->get_all_errors_array();
+    $errors = $this->v->get_all_errors_array();
 
     $this->assertRegExp('#^custom message field1 custom message$#',$errors['field1']);
     
@@ -205,6 +205,73 @@ class ValidationRequiredTest extends \PHPUnit_Framework_TestCase
 
   }
 
+  // --------------------------------------------------------------------------
+
+  public function testSetErrorTags()
+  {
+
+    $this->v->add_field('field1','','required');
+    
+    $this->v->add_error_message('required','custom message %s custom message');
+    $this->v->set_error_tags('<li>','</li>');
+
+    $res = $this->v->run(array('field1'=>''));
+
+    $msg =  $this->v->get_error_message('field1');
+
+    $this->assertRegExp('#^<li>custom message field1 custom message</li>$#',$msg);
+    
+  }
+  
+  // --------------------------------------------------------------------------
+
+  /**
+   * ValidationRequiredTest::testSetErrorTagsError1()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testSetErrorTagsError1()
+  {
+    $this->v->set_error_tags(1,'</li>');
+    
+  }
+
+  /**
+   * ValidationRequiredTest::testSetErrorTagsError2()
+   * 
+   * @expectedException PHPUnit_Framework_Error
+   */
+  public function testSetErrorTagsError2()
+  {
+    $this->v->set_error_tags('<li>',1);
+    
+  }
+
+  // --------------------------------------------------------------------------
+
+  public function testSetErrorTagsEmpty()
+  {
+    $res = $this->v->set_error_tags('','');
+    
+    $this->assertInstanceOf($this->name,$res);
+  }
+
+  // --------------------------------------------------------------------------
+
+  public function testErrorMessageWithNoError()
+  {
+
+    $this->v->add_field('field1','','required');
+    
+    $res = $this->v->run(array('field1'=>'value1'));
+
+    $msg =  $this->v->get_error_message('field1');
+
+    $this->assertTrue($msg === '','empty error message not empty string');
+    
+  }
+
+  
   // --------------------------------------------------------------------------
   
   /**
