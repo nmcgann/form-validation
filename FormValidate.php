@@ -109,7 +109,7 @@ class FormValidate {
    */
   public function __call($method, $args)
   {
-    //see if callback exists in table
+     //see if callback exists in table
     if(isset($this->callbacks[$method]))
     {
       //Yes!
@@ -120,28 +120,22 @@ class FormValidate {
     
       //note: callability of callbacks is tested when they are added, so they can just be called
       //without re-checking here.
-      if(empty($this->callbacks[$method]))
+      $callback = $this->callbacks[$method]; //get the callback array
+
+      //test for anonymous/lambda function method - $callback[0] is NULL and $callback[1] is the anon function
+      //(or named non-class function)
+      if ($callback[0] === null)
       {
-        //standard function - no array parameters
-        return call_user_func_array($method, $args);
+        //calls with the lambda case (not an array)
+        return call_user_func_array($callback[1], $args); 
       }
       else
       {
-        $callback = $this->callbacks[$method]; //get the callback array
-      
-        //class method ([0] is class name, [1] is method name)
-        if($method == $callback[1])
-        {
-          //calls with the class/method array
-          return call_user_func_array($callback, $args); 
-        }
-        //test for anonymous/lambda function method - $callback[0] is the name and $callback[1] is the anon function
-        elseif ($method == $callback[0]) //still a redundant check?
-        {
-          //calls with the lambda case (not an array)
-          return call_user_func_array($callback[1], $args); 
-        }
+        //calls with the class/method array
+        //$callback[0] is the class name and $callback[1] is the method name
+        return call_user_func_array($callback, $args); 
       }
+
     }
   
     //if we get to here it is an unrecognised callback which is an error.
@@ -184,39 +178,33 @@ class FormValidate {
    * @param mixed $func
    * @return
    */
-  public function add_validation_rule($name = null, $func = null) 
+  public function add_validation_rule($name, $func) 
   {
     //check for parameter errors and illegal names that clash with existing methods
-    if($name !== null && is_string($name) && $name != '' &&
-      !method_exists($this, $name)) 
+    if(is_string($name) && $name != '' && !method_exists($this, $name)) 
     {
-    
-      if($func === null)
-      {
-        if (is_callable($name))
+      //array is class+method type
+      if(is_array($func))
+      {      
+        //class+method
+        if(is_callable($func))
         {
-          //simple function - looks good & callable
-          $this->callbacks[$name] = array();
+          $this->callbacks[$name] = $func;
           return $this;
         }
-        
-        //not callable - drop through
       }
-      else if (is_callable($func))
+      else
       {
-        //there is a 2nd callable parameter
-        // yes - anonymous function case
-       $this->callbacks[$name] = array($name, $func);
-        return $this;
+        //closure or function
+        if(is_callable($func))
+        {
+          $this->callbacks[$name] = array(null, $func);
+          return $this;
+        }
       }
-      else if(is_callable(array($func,$name)))
-      {
-        //2nd param is not callable - but a class/name version ($func is the class)
-        $this->callbacks[$name] = array($func,$name);
-        return $this;
-        
-      }
+
     }
+
     //bad name, clash or is not callable
     trigger_error("Error in rule format for \"$name\" or name clash with existing rule.", E_USER_ERROR);
   }

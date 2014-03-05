@@ -11,6 +11,16 @@ function custom_test_fn ($obj,$str)
   
 }
 
+//simple test class with static function
+
+class test_class {
+
+  public static function custom_test_method ($obj,$str)
+  {
+    return $str === 'a_valid_value';
+    
+  }  
+}
 
   // --------------------------------------------------------------------------
   
@@ -35,7 +45,7 @@ class ValidationAddRule extends \PHPUnit_Framework_TestCase
    */
   public function testAddRuleWithErrorInFormat1()
   {
-    $this->v->add_validation_rule();
+    $this->v->add_validation_rule(null,null);
     
     $this->assertTrue(false); //shouldn't get here
 
@@ -49,7 +59,7 @@ class ValidationAddRule extends \PHPUnit_Framework_TestCase
    */
   public function testAddRuleWithErrorInFormat2()
   {
-    $this->v->add_validation_rule(1);
+    $this->v->add_validation_rule(1,5);
     
     $this->assertTrue(false); //shouldn't get here
 
@@ -63,7 +73,7 @@ class ValidationAddRule extends \PHPUnit_Framework_TestCase
    */
   public function testAddRuleWithErrorInFormat3()
   {
-    $this->v->add_validation_rule('');
+    $this->v->add_validation_rule('','');
     
     $this->assertTrue(false); //shouldn't get here
 
@@ -78,7 +88,7 @@ class ValidationAddRule extends \PHPUnit_Framework_TestCase
   public function testAddRuleWithErrorInFormat4()
   {
     //name clash
-    $this->v->add_validation_rule('required');
+    $this->v->add_validation_rule('required','Test\custom_test_fn');
     
     $this->assertTrue(false); //shouldn't get here
 
@@ -93,7 +103,7 @@ class ValidationAddRule extends \PHPUnit_Framework_TestCase
   public function testAddRuleWithErrorNotCallable()
   {
     //not callable
-    $this->v->add_validation_rule('THIS_IS_NOT_A_CALLABLE_FUNCTION');
+    $this->v->add_validation_rule('test_rule','THIS_IS_NOT_A_CALLABLE_FUNCTION');
     
     $this->assertTrue(false); //shouldn't get here
 
@@ -161,12 +171,23 @@ class ValidationAddRule extends \PHPUnit_Framework_TestCase
   
   // --------------------------------------------------------------------------
   
+  public function testAddRuleStaticMethod()
+  {
+    
+    $o = $this->v->add_validation_rule('custom_test',array('Test\test_class','custom_test_method'));
+ 
+    $this->assertInstanceOf($this->name,$o);
+
+  }
+
+  // --------------------------------------------------------------------------
+  
   public function testAddRuleFunction()
   {
     
     $this->assertTrue(is_callable('Test\custom_test_fn'),'not callable');
     
-    $o = $this->v->add_validation_rule('Test\custom_test_fn');
+    $o = $this->v->add_validation_rule('test_rule','Test\custom_test_fn');
    
     $this->assertInstanceOf($this->name,$o);
 
@@ -229,9 +250,9 @@ class ValidationAddRule extends \PHPUnit_Framework_TestCase
   public function testAddRuleSimpleFunctionAndCall()
   {
     
-    $o = $this->v->add_validation_rule('Test\custom_test_fn');
+    $o = $this->v->add_validation_rule('test_fn','Test\custom_test_fn');
  
-    $this->v->add_field('field1','','custom_test_fn');
+    $this->v->add_field('field1','','test_fn');
     
     $res = $this->v->run(array('field1'=>'value1'));
     
@@ -247,10 +268,61 @@ class ValidationAddRule extends \PHPUnit_Framework_TestCase
 
     $msg =  $this->v->get_error_message('field1');
 
-    $this->assertRegExp('#No custom error message is set for "custom_test_fn" validating "field1" field.#',$msg,'error message not generic format');
+    $this->assertRegExp('#No custom error message is set for "test_fn" validating "field1" field.#',$msg,'error message not generic format');
 
   }
+  // --------------------------------------------------------------------------
+ 
+  public function testAddRuleMethodAndCall()
+  {
     
+    $o = $this->v->add_validation_rule('custom_test',array($this,'custom_test'));
+ 
+    $this->v->add_field('field1','','custom_test');
+    
+    $res = $this->v->run(array('field1'=>'value1'));
+    
+    $this->assertFalse($res,'validation passed, should have failed');
+ 
+    $res = $this->v->run(array('field1'=>'a_valid_value'));
+
+    $this->assertTrue($res,'validation failed, should have passed');
+   
+    $res = $this->v->run(array('field1'=>'value1')); //fail
+    
+    $this->assertFalse($res,'validation passed, should have failed');
+
+    $msg =  $this->v->get_error_message('field1');
+
+    $this->assertRegExp('#No custom error message is set for "custom_test" validating "field1" field.#',$msg,'error message not generic format');
+    
+  }    
+  // --------------------------------------------------------------------------
+ 
+  public function testAddRuleStaticMethodAndCall()
+  {
+    
+    $o = $this->v->add_validation_rule('custom_test',array('Test\test_class','custom_test_method'));
+ 
+    $this->v->add_field('field1','','custom_test');
+    
+    $res = $this->v->run(array('field1'=>'value1'));
+    
+    $this->assertFalse($res,'validation passed, should have failed');
+ 
+    $res = $this->v->run(array('field1'=>'a_valid_value'));
+
+    $this->assertTrue($res,'validation failed, should have passed');
+   
+    $res = $this->v->run(array('field1'=>'value1')); //fail
+    
+    $this->assertFalse($res,'validation passed, should have failed');
+
+    $msg =  $this->v->get_error_message('field1');
+
+    $this->assertRegExp('#No custom error message is set for "custom_test" validating "field1" field.#',$msg,'error message not generic format');
+    
+  }    
   // --------------------------------------------------------------------------
   
   public function TearDown() 
