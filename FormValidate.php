@@ -1,32 +1,44 @@
 <?php
 /**
- * Validation class based on the interface from codeigniter. An original piece of work otherwise :-) 
- * Supports single-nested arrays (e.g. for checkbox arrays)
- *  
- */
-namespace Libraries;
-
-defined('FCPATH') OR die('No direct script access.');
-
-/**
  * FormValidate
  * 
- * Validation class. Patterned on the codeigniter one. 
+ * Form Validation class. 
  * 
- * Limitation is this doesn't work on nested arrays more than 1 level deep.
+ * Only limitation is this doesn't work on nested arrays more than 1 level deep.
  * Otherwise full-featured and can use functions, lambda functions and class methods (of static
  * or instantiated classes) as custom callbacks.
- * 
- * The "regex" method and "is_unique" aren't implemented as the [] characters are used in the rule
- * string and this limits the regext too much. is_unique assumes knowledge about databases is in the
- * validation class which isn't appropriate. These are very easy to do with lambdas.
  * 
  * @package form-validation
  * @author Neil McGann
  * @copyright 2014
- * @version $Id$
+ * @version 1.0
  * @access public
+ * 
+ * Copyright (c) 2014 Neil McGann
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
+namespace Libraries;
+
+//defined('FCPATH') OR die('No direct script access.');
+
 class FormValidate {
 
   //validation rules. Is an array of field name, field alias and then another array of routines and parameters
@@ -55,7 +67,6 @@ class FormValidate {
     'is_numeric'          => "The %s field must contain only numeric characters.",
     'integer'             => "The %s field must contain an integer.",
     'matches'             => "The %s field does not match the %s field.",
-//    'is_unique'         => "The %s field must contain a unique value.", // requires db access - not appropriate
     'is_natural'          => "The %s field must contain only positive numbers.",
     'is_natural_no_zero'  => "The %s field must contain a number greater than zero.",
     'decimal'             => "The %s field must contain a decimal number.",
@@ -65,12 +76,7 @@ class FormValidate {
     'report_error'        => "No custom error message is set for \"%s\" validating \"%s\" field." 
   );
 
-  //callbacks for external validation functions. These are either in simple function format
-  // 'function_1', 'function_2' ..etc or class/method or a mix of both.
-  // class method looks like: array('class1','method1'),array('class2','method2')
-  // The class/method type need either an instantiated class's method (using the object as the first param)
-  // or a static class method. PHP throws a warning otherwise.
-  //also supports lambda functions where array('routine_name',{callable lambda function})
+  //callbacks for external validation functions.
   private $callbacks = array();
 
   //display options (setter function for these)
