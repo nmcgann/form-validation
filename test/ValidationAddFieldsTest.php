@@ -39,6 +39,7 @@ class ValidationAddFieldsTest extends \PHPUnit_Framework_TestCase
    * ValidationAddFieldsTest::testAddInvalidField()
    * 
    * @expectedException PHPUnit_Framework_Error
+   * @expectedExceptionCode 256
    */
   public function testAddInvalidField()
   {
@@ -51,6 +52,7 @@ class ValidationAddFieldsTest extends \PHPUnit_Framework_TestCase
    * ValidationAddFieldsTest::testAddInvalidAlias()
    * 
    * @expectedException PHPUnit_Framework_Error
+   * @expectedExceptionCode 256
    */
   public function testAddInvalidAlias()
   {
@@ -63,6 +65,7 @@ class ValidationAddFieldsTest extends \PHPUnit_Framework_TestCase
    * ValidationAddFieldsTest::testAddInvalidRuleList()
    * 
    * @expectedException PHPUnit_Framework_Error
+   * @expectedExceptionCode 256
    */
   public function testAddInvalidRuleList()
   {
@@ -124,6 +127,7 @@ class ValidationAddFieldsTest extends \PHPUnit_Framework_TestCase
    * ValidationAddFieldsTest::testAddFieldListWithError()
    * 
    * @expectedException PHPUnit_Framework_Error
+   * @expectedExceptionCode 256
    */
   public function testAddFieldListWithError()
   {
@@ -152,6 +156,7 @@ class ValidationAddFieldsTest extends \PHPUnit_Framework_TestCase
    * ValidationAddFieldsTest::testAddFieldListWithErrorInArray1()
    * 
    * @expectedException PHPUnit_Framework_Error
+   * @expectedExceptionCode 256
    */
   public function testAddFieldListWithErrorInArray1()
   {
@@ -166,6 +171,7 @@ class ValidationAddFieldsTest extends \PHPUnit_Framework_TestCase
    * ValidationAddFieldsTest::testAddFieldListWithErrorInArray2()
    * 
    * @expectedException PHPUnit_Framework_Error
+   * @expectedExceptionCode 256
    */
   public function testAddFieldListWithErrorInArray2()
   {
@@ -180,6 +186,7 @@ class ValidationAddFieldsTest extends \PHPUnit_Framework_TestCase
    * ValidationAddFieldsTest::testAddFieldListWithErrorInArray3()
    * 
    * @expectedException PHPUnit_Framework_Error
+   * @expectedExceptionCode 256
    */
   public function testAddFieldListWithErrorInArray3()
   {
@@ -194,6 +201,7 @@ class ValidationAddFieldsTest extends \PHPUnit_Framework_TestCase
    * ValidationAddFieldsTest::testAddFieldListWithErrorInArray4()
    * 
    * @expectedException PHPUnit_Framework_Error
+   * @expectedExceptionCode 256
    */
   public function testAddFieldListWithErrorInArray4()
   {

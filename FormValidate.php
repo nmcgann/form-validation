@@ -260,9 +260,9 @@ class FormValidate {
    * @param mixed $data
    * @return
    */
-  public function set_data ($data=null)
+  public function set_data ($data=array())
   {
-    if($data === null || !is_array($data))
+    if(!is_array($data))
     {
       trigger_error("Error in parameters for set_data.", E_USER_ERROR);
        
@@ -294,10 +294,12 @@ class FormValidate {
    * @param mixed $default
    * @return
    */
-  public function get_data ($field=null,$default=null)
+  public function get_data ($field,$default=null)
   {
-    if($field === null) 
-      return $default;
+    if(!is_string($field) || $field == '')
+    {
+      trigger_error("Error in parameters for get_data.", E_USER_ERROR);
+    } 
     
     return (isset($this->data[$field]) ? $this->data[$field] : $default);
   }
@@ -325,6 +327,11 @@ class FormValidate {
    */
   public function get_error_message($field)
   {
+    if(!is_string($field) || $field == '')
+    {
+      trigger_error("Error in parameters for get_error_message.", E_USER_ERROR);
+    } 
+    
     if(isset($this->errors[$field]))
     {
       $msg = $this->opening_err_tag.$this->errors[$field].$this->closing_err_tag;
@@ -364,7 +371,7 @@ class FormValidate {
     //sanity check    
     if(!is_string($field) || !is_string($alias) || !is_string($rule_list))
     {
-      //parameter errors, just return
+      //parameter errors
       trigger_error("Error in parameters for add_field", E_USER_ERROR);
     }
     
@@ -496,7 +503,7 @@ class FormValidate {
    */
   private function validate_one($method, &$data, &$param)
   {
-    if(/*$data === null ||*/ $method == 'required' || $method == 'is_set')
+    if($method == 'required' || $method == 'is_set')
     {
       //needs to run if no data (or forced by required rule)to generate the error for empty field
       $result = $this->{$method}($data,$param);
