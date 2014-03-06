@@ -79,7 +79,7 @@ class FormValidate {
   //callbacks for external validation functions.
   private $callbacks = array();
 
-  //display options (setter function for these)
+  //display options (setter function for these). Defaults to paragraph tags.
   private $opening_err_tag = '<p>';
   private $closing_err_tag = '</p>';
     
@@ -88,16 +88,23 @@ class FormValidate {
   /**
    * FormValidate::__construct()
    * 
-   * constructor - optionally copy data into init array
+   * constructor - optionally add replacement set of error messages
    * 
-   * @param mixed $initial_data
+   * @param mixed $error_msgs
    * @return void
    */
-  public function __construct($initial_data = array())
+  public function __construct($error_msgs = array())
   {
-    if (is_array($initial_data) && !empty($initial_data))
+    if (is_array($error_msgs) && !empty($error_msgs))
     {
-      $this->data = $initial_data;
+      //copy in new set of error messages
+      $this->error_msgs = $error_msgs;
+      
+      if(!isset($this->error_msgs['report_error']))
+      {
+        //ensure default internal error message(s)) always exist
+        $this->error_msgs['report_error'] = "No custom error message is set for \"%s\" validating \"%s\" field.";
+      }
     }
   }
 
@@ -340,7 +347,7 @@ class FormValidate {
     
     if(isset($this->errors[$field]))
     {
-      $msg = $this->opening_err_tag.$this->errors[$field].$this->closing_err_tag;
+      $msg = $this->opening_err_tag . $this->errors[$field] . $this->closing_err_tag;
     }
     else
     {
