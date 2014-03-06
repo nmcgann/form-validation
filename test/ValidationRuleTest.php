@@ -405,6 +405,195 @@ class ValidationRuleTest extends \PHPUnit_Framework_TestCase
   }
   
   // --------------------------------------------------------------------------
+
+  public function test_is_numericFail()
+  {
+
+    $this->v->add_field('field1','','is_numeric');
+    $res = $this->v->run(array('field1'=>'012abcd'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+
+  public function test_is_numericPass()
+  {
+
+    $this->v->add_field('field1','','is_numeric');
+    $res = $this->v->run(array('field1'=>'+0123.45e6'));
+    //should pass
+    $this->assertTrue($res);
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function test_integerFail()
+  {
+
+    $this->v->add_field('field1','','integer');
+    $res = $this->v->run(array('field1'=>'+1e6'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+
+  public function test_integerPass()
+  {
+
+    $this->v->add_field('field1','','integer');
+    $res = $this->v->run(array('field1'=>'+012345'));
+    //should pass
+    $this->assertTrue($res);
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function test_decimalFail()
+  {
+
+    $this->v->add_field('field1','','decimal');
+    $res = $this->v->run(array('field1'=>'+123.'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+
+  public function test_decimalPass()
+  {
+
+    $this->v->add_field('field1','','decimal');
+    $res = $this->v->run(array('field1'=>'+012.456'));
+    //should pass
+    $this->assertTrue($res);
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function test_greater_thanFail()
+  {
+
+    $this->v->add_field('field1','','greater_than[5]');
+    $res = $this->v->run(array('field1'=>'4.5'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+
+  public function test_greater_thanPass()
+  {
+
+    $this->v->add_field('field1','','greater_than[5]');
+    $res = $this->v->run(array('field1'=>'5.5'));
+    //should pass
+    $this->assertTrue($res);
+
+  }
+  // --------------------------------------------------------------------------
+
+  public function test_less_thanFail()
+  {
+
+    $this->v->add_field('field1','','less_than[5]');
+    $res = $this->v->run(array('field1'=>'5.5'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+
+  public function test_less_thanPass()
+  {
+
+    $this->v->add_field('field1','','less_than[5]');
+    $res = $this->v->run(array('field1'=>'4.5'));
+    //should pass
+    $this->assertTrue($res);
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function test_is_naturalFail()
+  {
+
+    $this->v->add_field('field1','','is_natural');
+    $res = $this->v->run(array('field1'=>'235.56'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+
+  public function test_is_naturalPass()
+  {
+
+    $this->v->add_field('field1','','is_natural');
+    $res = $this->v->run(array('field1'=>'44589'));
+    //should pass
+    $this->assertTrue($res);
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function test_is_natural_no_zero()
+  {
+
+    $this->v->add_field('field1','','is_natural_no_zero');
+    $res = $this->v->run(array('field1'=>'0'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+
+  public function test_is_natural_no_zeroPass()
+  {
+
+    $this->v->add_field('field1','','is_natural_no_zero');
+    $res = $this->v->run(array('field1'=>'123'));
+    //should pass
+    $this->assertTrue($res);
+
+  }
+  
+  // --------------------------------------------------------------------------
+  
   public function TearDown() 
   {
    unset($this->v);

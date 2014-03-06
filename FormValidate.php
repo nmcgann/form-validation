@@ -555,7 +555,9 @@ class FormValidate {
     
     //if data to validate passed then copy in
     if($val_data !== null && is_array($val_data))
+    {  
       $this->data = $val_data;
+    }
     
     if($only_with_rules) $this->restrict_data_fields (); //remove fields without rules if enabled
     
