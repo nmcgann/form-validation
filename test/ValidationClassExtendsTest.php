@@ -55,7 +55,23 @@ class ValidationClassExtendsTest extends \PHPUnit_Framework_TestCase
 
   }
   // --------------------------------------------------------------------------
-  
+   
+  public function testExtendsClassReplaceTest()
+  {
+
+   //test that will fail
+    $this->v->add_field('field1','','is_funny');
+    $res = $this->v->run(array('field1'=>'not_funny'));
+
+    $this->assertFalse($res);
+    
+   //replace the test for the field
+    $this->v->add_field('field1','','alpha');
+    $res = $this->v->run(array('field1'=>'abcdefghijklmnopqrstuvwxyz'));
+
+    $this->assertTrue($res,'Failed to replace test rule');
+    
+}
 
   // --------------------------------------------------------------------------
   public function TearDown() 

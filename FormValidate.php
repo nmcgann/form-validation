@@ -397,7 +397,8 @@ class FormValidate {
     {
       //empty rule list - still ok to add in as an empty rule (gets a possible field alias in there)
       //also just having the field name can be required.
-      $this->rules[] = $rule;
+      //$this->rules[] = $rule;
+      $this->rules[$rule['field']] = $rule; //allows rules to replace ones with the same fieldname
       return $this;
     }
     
@@ -449,10 +450,11 @@ class FormValidate {
       }
       
       //if a valid rule string add the whole ruleset to the array, else discard it.
-      //(redundant test when trigger_error() used)
+      //(redundant test when trigger_error() used - will be valid by here anyway)
       if($found) 
       {
-        $this->rules[] = $rule;
+        //$this->rules[] = $rule;
+        $this->rules[$rule['field']] = $rule; //allows rules to replace ones with the same fieldname
       }
     }
     //chainable method
@@ -632,7 +634,7 @@ class FormValidate {
     
     }
     
-    //did anything fail validation??
+    //return the pass/fail status
     return $passed;
 
   }
