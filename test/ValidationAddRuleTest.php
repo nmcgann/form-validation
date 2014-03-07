@@ -1,7 +1,12 @@
 <?php
+/**
+ * FormValidate - Tests
+ * 
+ * Phpunit tests for validation class
+ * 
+ */
 namespace Test;
 use \Libraries as Lib;
-//Phpunit tests for validation class
 
 //simple test function in global scope
 

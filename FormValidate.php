@@ -37,7 +37,7 @@
  */
 namespace Libraries;
 
-//defined('FCPATH') OR die('No direct script access.');
+defined('FCPATH') OR die('No direct script access.');
 
 class FormValidate {
 
