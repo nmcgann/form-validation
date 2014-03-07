@@ -160,6 +160,28 @@ class ValidationBasicTest extends \PHPUnit_Framework_TestCase
   }
 
   // --------------------------------------------------------------------------
+
+  public function testGetData()
+  {
+    $this->v->set_data(array('field2'=>'val2'));
+    
+    $data = $this->v->get_data('field1');
+    
+    $this->assertNull($data,'missing data did not return null');
+    
+    $data = $this->v->get_data('field1','The Default');
+    
+    $this->assertSame($data,'The Default','missing data did not return set default');
+
+    $data = $this->v->get_data('field2');
+
+    $this->assertSame($data,'val2','set data did not return set value');
+  
+  }
+
+
+
+  // --------------------------------------------------------------------------
   public function TearDown() 
   {
    unset($this->v);

@@ -567,7 +567,7 @@ class ValidationRuleTest extends \PHPUnit_Framework_TestCase
   
   // --------------------------------------------------------------------------
 
-  public function test_is_natural_no_zero()
+  public function test_is_natural_no_zeroFail()
   {
 
     $this->v->add_field('field1','','is_natural_no_zero');
@@ -592,6 +592,116 @@ class ValidationRuleTest extends \PHPUnit_Framework_TestCase
 
   }
   
+  // --------------------------------------------------------------------------
+
+  public function test_matches()
+  {
+
+    $this->v->add_field('field1','','matches[field2]');
+    $this->v->add_field('field2','','');
+    $res = $this->v->run(array('field1'=>'val1','field2'=>'val2'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+
+  public function test_matchesPass()
+  {
+
+    $this->v->add_field('field1','','matches[field2]');
+    $res = $this->v->run(array('field1'=>'val1','field2'=>'val1'));
+    //should pass
+    $this->assertTrue($res);
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function test_matchesWithAlias()
+  {
+
+    $this->v->add_field('field1','The Field One','matches[field2]');
+    $this->v->add_field('field2','','');
+    $res = $this->v->run(array('field1'=>'val1','field2'=>'val2'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name alias in standard error string
+    $this->assertRegExp('#\bThe Field One\b#i',$str,'error message format error - missing alias)');
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function test_trim()
+  {
+    
+    $this->v->add_field('field1','','trim');
+    $res = $this->v->run(array('field1'=>'    val1    '));
+    //should pass
+    $this->assertTrue($res);
+
+    $data = $this->v->get_data('field1');
+
+    $this->assertSame($data,'val1');
+  
+  }
+
+  // --------------------------------------------------------------------------
+
+  public function test_to_lower()
+  {
+    
+    $this->v->add_field('field1','','to_lower');
+    $res = $this->v->run(array('field1'=>' TEST UPPER CASE '));
+    //should pass
+    $this->assertTrue($res);
+
+    $data = $this->v->get_data('field1');
+
+    $this->assertSame($data,' test upper case ');
+  
+  }
+
+  // --------------------------------------------------------------------------
+
+  public function test_to_upper()
+  {
+    
+    $this->v->add_field('field1','','to_upper');
+    $res = $this->v->run(array('field1'=>' test upper case '));
+    //should pass
+    $this->assertTrue($res);
+
+    $data = $this->v->get_data('field1');
+
+    $this->assertSame($data,' TEST UPPER CASE ');
+  
+  }
+
+  // --------------------------------------------------------------------------
+
+  public function test_html_clean()
+  {
+    
+    $this->v->add_field('field1','','html_clean');
+    $res = $this->v->run(array('field1'=>'<>"\'&'));
+    //should pass
+    $this->assertTrue($res);
+
+    $data = $this->v->get_data('field1');
+
+    $this->assertSame($data,'&lt;&gt;&quot;&#039;&amp;');
+  
+  }
+
   // --------------------------------------------------------------------------
   
   public function TearDown() 
