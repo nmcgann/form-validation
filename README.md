@@ -28,7 +28,7 @@ $v->add_field('name_field','Name','required|alpha');
 //add more fields as required...
 
 //the data to validate - any array of key=>value pairs
-//this will fail
+//(this example will fail)
 $data = array('name_field' => '0123');
 
 //run validation and do something with the results
