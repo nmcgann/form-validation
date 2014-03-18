@@ -67,6 +67,7 @@ class FormValidate {
     'is_numeric'          => "The %s field must contain only numeric characters.",
     'integer'             => "The %s field must contain an integer.",
     'matches'             => "The %s field does not match the %s field.",
+    'differs'             => "The %s field must be different to the %s field.",
     'is_natural'          => "The %s field must contain only positive numbers.",
     'is_natural_no_zero'  => "The %s field must contain a number greater than zero.",
     'decimal'             => "The %s field must contain a decimal number.",
@@ -718,36 +719,36 @@ class FormValidate {
   
 // ----------------------------------------------------------------------------
   
-  protected function trim (&$val)
+  protected function trim (&$str)
   {
     //prep routine to trim  
-    $val = trim($val);
+    $str = trim($str);
     return true;
   }
   
 // ----------------------------------------------------------------------------
   //prep routine to lowercase 
-  protected function to_lower (&$val)
+  protected function to_lower (&$str)
   {
-    $val = strtolower($val);
+    $str = strtolower($str);
     
     return true;
   }
   
 // ----------------------------------------------------------------------------
   //prep routine to uppercase
-  protected function to_upper (&$val)
+  protected function to_upper (&$str)
   {
-    $val = strtoupper($val);
+    $str = strtoupper($str);
     
     return true;
   }
   
 // ----------------------------------------------------------------------------
   //prep routine to safely encode html tags
-  protected function html_clean (&$val)
+  protected function html_clean (&$str)
   {
-    $val = htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
+    $str = htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
     
     return true;
   }
@@ -788,6 +789,26 @@ class FormValidate {
     
     return $field; //return the original so no test required on return val
 
+  }
+  
+// ----------------------------------------------------------------------------
+
+  //one field differs from another - this routine edits the $field name to insert the human-readable version
+  //This is fine as long as the function isn't passed a pointer to the original value which will then get modified. 
+  protected function differs($str, &$field)
+  {
+    if (!isset($this->data[$field]) || $field === null)
+    {
+      //no second field specified - fail
+      return false;
+    }
+
+    $val = $this->data[$field];
+    
+    //set 2nd field name to Alias (called by reference), or leave as original if there is no alias
+    $field = $this->find_alias_for_field($field);
+
+    return ($str === $val) ? false : true;
   }
   
 // ----------------------------------------------------------------------------

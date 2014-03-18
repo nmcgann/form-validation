@@ -615,10 +615,27 @@ class ValidationRuleTest extends \PHPUnit_Framework_TestCase
 
   }
 
+  public function test_matchesNoSecondField()
+  {
+
+    $this->v->add_field('field1','','matches[field2]');
+
+    $res = $this->v->run(array('field1'=>'val1'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+  
   public function test_matchesPass()
   {
 
     $this->v->add_field('field1','','matches[field2]');
+    $this->v->add_field('field2','','');
     $res = $this->v->run(array('field1'=>'val1','field2'=>'val1'));
     //should pass
     $this->assertTrue($res);
@@ -633,6 +650,67 @@ class ValidationRuleTest extends \PHPUnit_Framework_TestCase
     $this->v->add_field('field1','The Field One','matches[field2]');
     $this->v->add_field('field2','','');
     $res = $this->v->run(array('field1'=>'val1','field2'=>'val2'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name alias in standard error string
+    $this->assertRegExp('#\bThe Field One\b#i',$str,'error message format error - missing alias)');
+
+  }
+  
+  // --------------------------------------------------------------------------
+
+  public function test_differs()
+  {
+
+    $this->v->add_field('field1','','differs[field2]');
+    $this->v->add_field('field2','','');
+    $res = $this->v->run(array('field1'=>'val1','field2'=>'val1'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+  
+  public function test_differsNoSecondField()
+  {
+
+    $this->v->add_field('field1','','differs[field2]');
+
+    $res = $this->v->run(array('field1'=>'val1'));
+    //should fail
+    $this->assertFalse($res);
+
+    $str = $this->v->get_error_message('field1');
+    
+    //check for field name in standard error string
+    $this->assertRegExp('#\bfield1\b#i',$str,'error message format error (string)');
+
+  }
+
+  public function test_differsPass()
+  {
+
+    $this->v->add_field('field1','','differs[field2]');
+    $this->v->add_field('field2','','');
+    $res = $this->v->run(array('field1'=>'val1','field2'=>'val2'));
+    //should pass
+    $this->assertTrue($res);
+
+  }
+  
+  public function test_differsWithAlias()
+  {
+
+    $this->v->add_field('field1','The Field One','differs[field2]');
+    $this->v->add_field('field2','','');
+    $res = $this->v->run(array('field1'=>'val1','field2'=>'val1'));
     //should fail
     $this->assertFalse($res);
 
