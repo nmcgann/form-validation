@@ -47,3 +47,15 @@ else
 }
 
 ```
+
+An example of a custom rule defined as an anon callback looks like:
+```php
+$v->add_validation_rule('new_test', function($obj,$str){
+
+  $obj->add_error_message('new_test',"The %s field must contain alpha characters only.");
+   
+  return (bool) preg_match('#^[a-zA-Z]+$#',$str);
+  
+}); 
+
+```
